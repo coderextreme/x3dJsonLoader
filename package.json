@@ -6,8 +6,8 @@
     "start": "node app.js"
   },
   "dependencies": {
+    "ejs": "^2.4.1",
     "express": "3.2.6",
-    "ejs": "*",
     "xmldom": "^0.1.22"
   }
 }
