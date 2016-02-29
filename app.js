@@ -13,6 +13,7 @@ var config = require("./config");
 var externPrototypeExpander = require("./ServerPrototypeExpander");
 
 var app = express();
+var router = express.Router();
 
 // all environments
 app.set('port', process.env.PORT || 3000);

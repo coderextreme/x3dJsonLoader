@@ -4,15 +4,35 @@
 
 // Convert X3D JSON to XML
 
+// For X3D Browser functions
+if (typeof Browser === 'undefined') {
+	var Browser = {
+		print : function(string) { if (typeof console !== 'undefined' && typeof string !== 'undefined') console.error(string); },
+		println : function(string) { if (typeof console !== 'undefined' && typeof string !== 'undefined') console.error(string); },
+		stringToArray : function(obj) {
+			if (typeof obj === 'object') {
+				return obj;
+			} else {
+				return JSON.parse('['+obj+']');
+			}
+		},
+		appendTo : function(element, json) {
+			 return ConvertToX3DOM(json, "", element, 'foo.json');
+		}
+	}
+}
+
 var xmldom = require('xmldom');
 var DOMImplementation = new xmldom.DOMImplementation();
-var XMLSerializer = new xmldom.XMLSerializer();
+var XMLSerializer = xmldom.XMLSerializer;
 
 var docType = DOMImplementation.createDocumentType("X3D", 'ISO//Web3D//DTD X3D 3.3//EN" "http://www.web3d.org/specifications/x3d-3.3.dtd', null);
 var document = DOMImplementation.createDocument(null, "X3D", docType);
 document.insertBefore(document.createProcessingInstruction('xml', 'version="1.0" encoding="UTF-8"'), document.doctype);
 var element = document.getElementsByTagNameNS(null, "X3D")[0];
 element.setAttribute("xmlns:xsd", 'http://www.w3.org/2001/XMLSchema-instance');
+
+var x3djsonNS;
 
 function elementSetAttribute(element, key, value) {
 	element.setAttribute(key, value);
@@ -31,6 +51,18 @@ function ConvertChildren(parentkey, object, element, path) {
 	}
 }
 
+function CreateElement(key, x3djsonNS) {
+	if (typeof x3djsonNS === 'undefined') {
+		return document.createElement(key);
+	} else {
+		var child = document.createElementNS(x3djsonNS, key);
+		if (child == null || typeof child === 'undefined') {
+			console.log('Trouble creating element for', key);
+			child = document.createElement(key);
+		}
+		return child;
+	}
+}
 function ConvertObject(key, object, element, path) {
 	if (object !== null && typeof object[key] === 'object') {
 		if (key.substr(0,1) === '@') {
@@ -43,21 +75,23 @@ function ConvertObject(key, object, element, path) {
 				element.appendChild(child);
 			}
 		} else if (key === '#sourceText') {
-			// var child = document.createCDATASection(object[key].join("\n").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&"));
 			var child = document.createTextNode(object[key].join("\n"));
+//			if (typeof x3djsonNS !== 'undefined' && x3djsonNS !== "http://www.w3.org/1999/xhtml") {
+//				var child = document.createCDATASection(object[key].join("\n").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&"));
+//			}
 			element.appendChild(child);
 		} else {
 			if (key === 'connect' || key === 'fieldValue' || key === 'field' || key === 'meta') {
 				for (var childkey in object[key]) {  // for each field
 					if (typeof object[key][childkey] === 'object') {
-						var child = document.createElementNS("http://www.web3d.org/specifications/x3d", key);
+						var child = CreateElement(key, x3djsonNS);
 						ConvertToX3DOM(object[key][childkey], childkey, child, path);
 						element.appendChild(child);
 						element.appendChild(document.createTextNode("\n"));
 					}
 				}
 			} else {
-				var child = document.createElementNS("http://www.web3d.org/specifications/x3d", key);
+				var child = CreateElement(key, x3djsonNS);
 				ConvertToX3DOM(object[key], key, child, path);
 				element.appendChild(child);
 				element.appendChild(document.createTextNode("\n"));
@@ -95,9 +129,10 @@ function ConvertToX3DOM(object, parentkey, element, path) {
 			}
 		} else if (typeof object[key] === 'object') {
 			// This is where the whole thing starts
-		        if (key === 'X3D') {
-				element = document.getElementsByTagNameNS(null, "X3D")[0];
+			if (key === 'X3D') {
 				ConvertToX3DOM(object[key], key, element, path);
+				elementSetAttribute(element, "id", "x3dele");
+				elementSetAttribute(element, "xmlns:xsd", 'http://www.w3.org/2001/XMLSchema-instance');
 			} else {
 				ConvertObject(key, object, element, path);
 			}
@@ -162,9 +197,17 @@ function ConvertToX3DOM(object, parentkey, element, path) {
 	return element;
 }
 
-function loadX3DJS(selector, json, path) {
+function loadX3DJS(json, path, xml) {
 	ConvertToX3DOM(json, "", element, path);
-	return XMLSerializer.serializeToString(element);
+	console.error(XMLSerializer);
+	var serializer = new XMLSerializer();
+	if (typeof xml !== 'undefined' && typeof xml.push === 'function') {
+		xml.push('<?xml version="1.0" encoding="UTF-8"?>');
+		xml.push('<!DOCTYPE X3D PUBLIC "ISO//Web3D//DTD X3D 3.3//EN" "http://www.web3d.org/specifications/x3d-3.3.dtd">');
+		// for Cobweb
+		var serializer = new XMLSerializer();
+		xml.push(serializer.serializeToString(element));
+	}
 }
 
 if (typeof module === 'object')  {
@@ -187,5 +230,6 @@ process.stdin.on('end', function() {
 if (typeof module === 'object')  {
 	module.exports = {
 		loadX3DJS : loadX3DJS,
+		Browser : Browser
 	}
 }
