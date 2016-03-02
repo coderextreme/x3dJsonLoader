@@ -223,8 +223,8 @@ process.stdin.on('data', function(buf) { content += buf.toString(); });
 
 process.stdin.on('end', function() {
 	var json = JSON.parse(content);
-	var xml = loadX3DJS(null, json, 'pp3s.json');
-	console.log(xml);
+	var xml = loadX3DJS(json, 'pp3s.json', xml);
+	console.error(xml);
 });
 
 if (typeof module === 'object')  {

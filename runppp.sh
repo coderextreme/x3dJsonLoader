@@ -1,10 +1,9 @@
 #!/bin/bash
-node PPP.js < public/bubbles.json > public/bubbless.json 
-read me
-exit
 node PPP.js < public/ArchPrototype.json > public/ArchPrototypes.json 
 read me
 node PPP.js < public/ObliqueStrategies.json > public/ObliqueStrategiess.json 
+read me
+node PPP.js < public/bubbles.json > public/bubbless.json 
 read me
 node PPP.js < public/for.json > public/fors.json
 read me
