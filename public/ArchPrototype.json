@@ -238,7 +238,7 @@
                     { "Script":
                       {
                         "@DEF":"ArchPrototypeScript",
-                        "@url":["X3DJSONLD/ArchPrototypeScript.js","http://coderextreme.net/X3DJSONLD/ArchPrototypeScript.js","http://X3dGraphics.com/examples/X3dForAdvancedModeling/Buildings/ArchPrototypeScript.js"],
+                        "@url":["ArchPrototypeScript.js","http://coderextreme.net/X3DJSONLD/ArchPrototypeScript.js","http://X3dGraphics.com/examples/X3dForAdvancedModeling/Buildings/ArchPrototypeScript.js"],
                         "field": [
                           {
                             "@name":"clearSpanWidth",
@@ -468,7 +468,7 @@
           { "Inline":
             {
               "@DEF":"CoordinateAxes",
-              "@url":["./CoordinateAxes.x3d", "X3DJSONLD/CoordinateAxes.x3d", "http://coderextreme.net/X3DJSONLD/CoordinateAxes.x3d"]
+              "@url":["./CoordinateAxes.x3d", "CoordinateAxes.x3d", "http://coderextreme.net/X3DJSONLD/CoordinateAxes.x3d"]
             }
           }
         ]

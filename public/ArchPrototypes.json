@@ -577,7 +577,6 @@
             "@DEF": "CoordinateAxes",
             "@url": [
               "./CoordinateAxes.x3d",
-              "X3DJSONLD/CoordinateAxes.x3d",
               "http://coderextreme.net/X3DJSONLD/CoordinateAxes.x3d"
             ],
             "@class": "CoordinateAxes"
