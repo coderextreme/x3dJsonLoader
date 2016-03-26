@@ -3,8 +3,8 @@
 <head>
     <title>X3D JSON Loader</title>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
-    <link rel="stylesheet" type="text/css" href="http://www.x3dom.org/download/1.7.1/x3dom.css"></link>
-    <script type="text/javascript" src="http://www.x3dom.org/download/1.7.1/x3dom-full.js"></script>
+    <link rel="stylesheet" type="text/css" href="http://www.x3dom.org/download/dev/x3dom.css"></link>
+    <script type="text/javascript" src="http://www.x3dom.org/download/dev/x3dom-full.js"></script>
     <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ajv/3.8.5/ajv.min.js"></script>
     <style type="text/css">
@@ -16,6 +16,25 @@
     table td, table td * {
         vertical-align: top;
     }
+/* unvisited link */
+a:link {
+    color: red;
+}
+
+/* visited link */
+a:visited {
+    color: green;
+}
+
+/* mouse over link */
+a:hover {
+    color: hotpink;
+}
+
+/* selected link */
+a:active {
+    color: blue;
+}
     </style>
 </head>
 <body>
@@ -63,6 +82,7 @@
 <input type="text" onchange="filter(event)"></input>
 Use Prototype Expander? <input id="prototype" type="checkbox" checked="true"></input>
 Use Namespace: <select id="namespace">
+<option>http://www.web3d.org/specifications/x3d</option>
 <option>http://www.w3.org/1999/xhtml</option> <!-- X3DOM XML -->
 <option>http://www.x3dom.org/x3dom</option>
 <option>http://www.web3d.org/specifications/x3d-namespace</option>  <!-- COBWEB -->
