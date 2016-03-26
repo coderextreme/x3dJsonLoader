@@ -1,5 +1,9 @@
 "use strict";
 
+if (typeof document === 'undefined') {
+	var document = {};
+}
+
 // For X3D Browser functions
 if (typeof Browser === 'undefined') {
 	var Browser = {
@@ -18,15 +22,16 @@ if (typeof Browser === 'undefined') {
 	}
 }
 
+var x3djsonNS;
 
 // 'http://www.web3d.org/specifications/x3d-namespace'
 
 // Load X3D JSON into web page
 
-var x3djsonNS;
-
 function elementSetAttribute(element, key, value) {
-	element.setAttribute(key, value);
+	if (key !== 'SON schema') {
+		element.setAttribute(key, value);
+	}
 }
 
 function ConvertChildren(parentkey, object, element, path) {
@@ -48,7 +53,7 @@ function CreateElement(key, x3djsonNS) {
 	} else {
 		var child = document.createElementNS(x3djsonNS, key);
 		if (child == null || typeof child === 'undefined') {
-			console.log('Trouble creating element for', key);
+			console.error('Trouble creating element for', key);
 			child = document.createElement(key);
 		}
 		return child;
@@ -66,12 +71,12 @@ function ConvertObject(key, object, element, path) {
 				element.appendChild(child);
 			}
 		} else if (key === '#sourceText') {
+			var open = document.createTextNode("<![CDATA[");
 			var child = document.createTextNode(object[key].join("\n"));
-//			if (typeof x3djsonNS !== 'undefined' && x3djsonNS !== "http://www.w3.org/1999/xhtml") {
-//				var child = document.createCDATASection(object[key].join("\n").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&"));
-//			}
-			$(element).css("display", "none");
+			var close = document.createTextNode("]]>");
+			element.appendChild(open);
 			element.appendChild(child);
+			element.appendChild(close);
 		} else {
 			if (key === 'connect' || key === 'fieldValue' || key === 'field' || key === 'meta') {
 				for (var childkey in object[key]) {  // for each field
@@ -123,8 +128,6 @@ function ConvertToX3DOM(object, parentkey, element, path) {
 			// This is where the whole thing starts
 			if (key === 'X3D') {
 				ConvertToX3DOM(object[key], key, element, path);
-				elementSetAttribute(element, "id", "x3dele");
-				elementSetAttribute(element, "xmlns:xsd", 'http://www.w3.org/2001/XMLSchema-instance');
 			} else {
 				ConvertObject(key, object, element, path);
 			}
@@ -189,14 +192,38 @@ function ConvertToX3DOM(object, parentkey, element, path) {
 	return element;
 }
 
+function fixXML(xmlstr) {
+	// get rid of self-closing tags
+	xmlstr = xmlstr.replace(/(<[ \t]*)([A-Za-z0-9]+)([^>]*)\/>/g, "$1$2$3></$2>");
+	// strip out namespace
+	xmlstr = xmlstr.replace(/xmlns="[^"]*"/g, "");
+
+	// strip out schema
+	xmlstr = xmlstr.replace(/xsd:noNamespaceSchemaLocation="[^"]*"/g, "");
+
+
+	// Fix CDATA sections
+	xmlstr = xmlstr.replace(/&lt;!\[CDATA\[/g, "<![CDATA[");
+	xmlstr = xmlstr.replace(/\]\]&gt;/g, "]]>");
+	do {
+		var xmlstr2 = xmlstr;
+		xmlstr = xmlstr2.replace(/(\<\!\[CDATA\[(.|\n)*)&lt;((.|\n)*\]\]\>)/g, "$1<$3");
+	} while (xmlstr !== xmlstr2);
+	do {
+		xmlstr2 = xmlstr;
+		xmlstr = xmlstr2.replace(/(\<\!\[CDATA\[(.|\n)*)&gt;((.|\n)*\]\]\>)/g, "$1>$3");
+	} while (xmlstr !== xmlstr2);
+	return xmlstr;
+}
+
 
 /*
  * Load X3D JSON into an element
- * element - the element to append to
  * json - the JSON to convert to XML and DOM
  * path - the path of the JSON file
- * xml - the output xml string array
- * NS - a namespace for cobweb
+ * xml - the output xml string array (optional)
+ * NS - a namespace for cobweb (optional) -- stripped out
+ * returns an element - the element to append or insert into the DOM
  */
 function loadX3DJS(json, path, xml, NS) {
 	x3djsonNS = NS;
@@ -205,9 +232,12 @@ function loadX3DJS(json, path, xml, NS) {
 	if (typeof xml !== 'undefined' && typeof xml.push === 'function') {
 		xml.push('<?xml version="1.0" encoding="UTF-8"?>');
 		xml.push('<!DOCTYPE X3D PUBLIC "ISO//Web3D//DTD X3D 3.3//EN" "http://www.web3d.org/specifications/x3d-3.3.dtd">');
-		// for Cobweb
+
 		var serializer = new XMLSerializer();
-		xml.push(serializer.serializeToString(child));
+		var xmlstr = serializer.serializeToString(child);
+
+		xmlstr = fixXML(xmlstr);
+		xml.push(xmlstr);
 	}
 	return child;
 }
@@ -215,6 +245,11 @@ function loadX3DJS(json, path, xml, NS) {
 if (typeof module === 'object')  {
 	module.exports = {
 		loadX3DJS : loadX3DJS,
-		Browser : Browser
+		Browser : Browser,
+		ConvertToX3DOM : ConvertToX3DOM,
+		fixXML : fixXML,
+		setDocument : function(doc) {
+			document = doc;
+		}
 	}
 }

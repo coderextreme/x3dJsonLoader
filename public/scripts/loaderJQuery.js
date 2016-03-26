@@ -4,6 +4,7 @@
 			// DISPLAY XML in X3DOM
 			$('#x3domxml').empty();
 			// Do this inner HTML so we can sneak script tag past JQuery (BAD BAD TODO)
+			console.log(xml);
 			$('#x3domxml').get()[0].innerHTML = xml.join("\n");
 	    	        $('textarea#xml').val(xml.join("\n"));
 		} else {
@@ -76,12 +77,20 @@
 		// When we zap the source, we prevent animation
 		// zapSource(json);
 
-		console.log(scripts.text);
-		// TODO eval is evil
-		eval(scripts.text);
-		console.log(routes.text);
-		// TODO eval is evil
-		eval(routes.text);
+		// console.log(scripts.text);
+		try {
+			// TODO eval is evil
+			eval(scripts.text);
+		} catch (e) {
+			console.error(e);
+		}
+		// console.log(routes.text);
+		try {
+			// TODO eval is evil
+			eval(routes.text);
+		} catch (e) {
+			console.error(e);
+		}
 
 	        $('textarea#json').val(JSON.stringify(json, null, 2));
 	
@@ -90,15 +99,70 @@
 	    var NS = $('#namespace option:selected').text();
 	    switch(NS) {
 	    case "none":
-		document.querySelector(selector).appendChild(loadX3DJS(json, url, xml)); // X3DOM
+		replaceX3DJSON(selector, json, url, xml); // X3DOM
 		break;
 	    default:
-		document.querySelector(selector).appendChild(loadX3DJS(json, url, xml, NS));  // Cobweb if not XHTML NS
+		replaceX3DJSON(selector, json, url, xml, NS);  // Cobweb if not XHTML NS
 		break;
 	    }
 			
 	    updateXML(xml);
         }
+
+	function loadSubscene(selector, url) {
+                $.getJSON(url, function(json) {
+                        ConvertToX3DOM(json, "", document.querySelector(selector), url);
+                }).fail(function(jqXHR, textStatus, errorThrown) { alert('getJSON request failed! ' + textStatus + ' ' + errorThrown); });
+        }
+
+        /*
+         * appendX3DJSON2Selector
+         * append to selector DOM created from X3D JSON.
+         *	also, generate xml for inclusion elsewhere
+         *
+	 * selector (string) -- css selector
+         * json (json object) -- json to convert to DOM
+         * xml (array or LOG, must have push function which takes a string) -- xml output (optional)
+         * NS -- XML namespace (optional)
+         */
+	function appendX3DJSON2Selector(selector, json, url, xml, NS) {
+		var element = loadX3DJS(json, url, xml, NS);  // Cobweb if not XHTML NS
+		elementSetAttribute(element, "xmlns:xsd", 'http://www.w3.org/2001/XMLSchema-instance');
+		document.querySelector(selector).appendChild(element);
+		x3dom.reload();
+	}
+
+/*
+var validate;
+$.getJSON("x3d-3.3-JSONSchema.json", function(schema) {
+	var ajv = Ajv({ allErrors:true});
+        ajv.addFormat("uri", /^(?:[a-z][a-z0-9+\-.]*:)?(?:\/?\/(?:(?:[a-z0-9\-._~!$&'()*+,;=:]|%[0-9a-f]{2})*@)?(?:\[(?:(?:(?:(?:[0-9a-f]{1,4}:){6}|::(?:[0-9a-f]{1,4}:){5}|(?:[0-9a-f]{1,4})?::(?:[0-9a-f]{1,4}:){4}|(?:(?:[0-9a-f]{1,4}:){0,1}[0-9a-f]{1,4})?::(?:[0-9a-f]{1,4}:){3}|(?:(?:[0-9a-f]{1,4}:){0,2}[0-9a-f]{1,4})?::(?:[0-9a-f]{1,4}:){2}|(?:(?:[0-9a-f]{1,4}:){0,3}[0-9a-f]{1,4})?::[0-9a-f]{1,4}:|(?:(?:[0-9a-f]{1,4}:){0,4}[0-9a-f]{1,4})?::)(?:[0-9a-f]{1,4}:[0-9a-f]{1,4}|(?:(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d?))|(?:(?:[0-9a-f]{1,4}:){0,5}[0-9a-f]{1,4})?::[0-9a-f]{1,4}|(?:(?:[0-9a-f]{1,4}:){0,6}[0-9a-f]{1,4})?::)|[Vv][0-9a-f]+\.[a-z0-9\-._~!$&'()*+,;=:]+)\]|(?:(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d?)|(?:[a-z0-9\-._~!$&'()*+,;=]|%[0-9a-f]{2})*)(?::\d*)?(?:\/(?:[a-z0-9\-._~!$&'()*+,;=:@]|%[0-9a-f]{2})*)*|\/(?:(?:[a-z0-9\-._~!$&'()*+,;=:@]|%[0-9a-f]{2})+(?:\/(?:[a-z0-9\-._~!$&'()*+,;=:@]|%[0-9a-f]{2})*)*)?|(?:[a-z0-9\-._~!$&'()*+,;=:@]|%[0-9a-f]{2})+(?:\/(?:[a-z0-9\-._~!$&'()*+,;=:@]|%[0-9a-f]{2})*)*)?(?:\?(?:[a-z0-9\-._~!$&'()*+,;=:@\/?]|%[0-9a-f]{2})*)?(?:\#(?:[a-z0-9\-._~!$&'()*+,;=:@\/?]|%[0-9a-f]{2})*)?$/i);
+	validate = ajv.compile(schema);
+});
+*/
+
+        /*
+         * replaceX3DJSON
+         * replace body of selector with DOM created from X3D JSON.
+         *	also, generate xml for inclusion elsewhere
+         *
+	 * selector (string) -- css selector
+         * json (json object) -- json to convert to DOM
+         * xml (array or LOG, must have push function which takes a string) -- xml output (optional)
+         * NS -- XML namespace (optional)
+         */
+	function replaceX3DJSON(selector, json, url, xml, NS) {
+		// check against schema
+		var valid = true;
+		if (valid || confirm(JSON.stringify(validate.errors))) {
+
+			var element = loadX3DJS(json, url, xml, NS);  // Cobweb if not XHTML NS
+			elementSetAttribute(element, "xmlns:xsd", 'http://www.w3.org/2001/XMLSchema-instance');
+			$(selector).empty();
+			$(selector).append(element);
+			x3dom.reload();
+		}
+	}
 
 	function updateX3DOM() {
 		loadX3DOM("#x3domjson", JSON.parse($('textarea#json').val()), "flipper.json"); // does not load flipper.json
@@ -112,12 +176,63 @@
 		.fail(function(jqXHR, textStatus, errorThrown) { alert('getJSON request failed! ' + textStatus + ' ' + errorThrown); });
 	}
 
+	function loadX3DXSLT(jsonAsXml, url) {
+		$('textarea#json').val(getXmlString(jsonAsXml));
+		replaceX3DJSON("#x3domjson", JSON.parse($("textarea#json").val()), url);
+		// don't load XML, it's already loaded
+	}
+
 	$("select").change(function() {
 		$("#x3domjson").empty();
 		var url = $('#file option:selected').text();
 		loadX3DJSON('#x3domjson', url);
 	});
 
-	$(document).ready(function() {
-		loadX3DJSON('#x3domjson','flipper.json'); // does load flipper.json
-	});
+	function getXmlString(xml) {
+	  if (window.ActiveXObject) { return xml.xml; }
+	  return new XMLSerializer().serializeToString(xml);
+	}
+
+	function convertXMLToJSON() {
+	    var xmlString = $('textarea#xml').val();
+	    $.post("/convert", xmlString, function(json) {
+		console.log('JSON', json);
+		$('textarea#json').val(JSON.stringify(json, null, 2));
+		replaceX3DJSON("#x3domjson", JSON.parse($("textarea#json").val()), "flipper.json");  // does not load flipper.json
+	    }, "json");
+/*
+	    $.get("X3dToJson.xslt", function(xslt) {
+		var xmlString = $('textarea#xml').val();
+		console.log("VAL", xmlString);
+		var demo = { xslt: xslt};
+
+		// code for regular browsers
+		if (window.DOMParser) {
+		    var parser = new DOMParser();
+		    demo.xml = parser.parseFromString(xmlString, "application/xml");
+		}
+		// code for IE
+		if (window.ActiveXObject) {
+		    demo.xml = new ActiveXObject("Microsoft.XMLDOM");
+		    demo.xml.async = false;
+		    demo.xml.loadXML(xmlString);
+		}
+		console.log("PARSED XML", demo.xml);
+
+		// code for regular browsers
+		if (document.implementation && document.implementation.createDocument)
+		{
+		    var xsltProcessor = Saxon.newXSLT20Processor();
+		    xsltProcessor.importStylesheet(demo.xslt);
+		    result = xsltProcessor.transformToFragment(demo.xml, document);
+		}
+		else if (window.ActiveXObject) {
+		    // code for IE
+		    result = demo.xml.transformNode(demo.xslt);
+		}
+
+		console.log('JSON', result);
+		loadX3DXSLT(result, 'flipper.json'); // does not load flipper.json
+	    }, "xml");
+*/
+	}
