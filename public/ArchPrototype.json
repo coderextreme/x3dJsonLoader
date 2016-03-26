@@ -248,7 +248,7 @@
                     { "Script":
                       {
                         "@DEF":"ArchPrototypeScript",
-                        "@url":["ArchPrototypeScript.js"],
+                        "@url":["X3DJSONLD/ArchPrototypeScript.js"],
                         "-children":[
                           { "#comment":"INPUT PARAMETERS"
                           },
