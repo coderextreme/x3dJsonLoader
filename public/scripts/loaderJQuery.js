@@ -17,7 +17,6 @@ function setVersion(version) {
 			// DISPLAY XML in X3DOM
 			$('#x3domxml').empty();
 			// Do this inner HTML so we can sneak script tag past JQuery (BAD BAD TODO)
-			console.log(xml);
 			$('#x3domxml').get()[0].innerHTML = xml.join("\n");
 	    	        $('textarea#xml').val(xml.join("\n"));
 		} else {
@@ -31,7 +30,7 @@ function setVersion(version) {
 			var browser = cobwebWindow.X3D.getBrowser(cobwebEle);
 			browser.replaceWorld(browser.createX3DFromString(content));
 		} else {
-			console.error("Cobweb disabled.  Use Firefox.");
+			console.error("Cobweb disabled temporarily.  May work on next load");
 		}
         }
 

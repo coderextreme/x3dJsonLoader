@@ -6,7 +6,7 @@ var fs = require("fs");
 var X3DJSONLD = require('./public/scripts/X3DJSONLD');
 var prototypeExpander = require('./public/scripts/PrototypeExpander');
 var Script = require('./public/scripts/Script');
-var externPrototypeExpander = require("./public/scripts/ServerPrototypeExpander");
+var externPrototypeExpander = require("./ServerPrototypeExpander");
 
 
 
