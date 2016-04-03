@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>X3D JSON Loader</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+    <link rel="stylesheet" type="text/css" href="http://www.x3dom.org/download/dev/x3dom.css"></link>
+    <script type="text/javascript" src="http://www.x3dom.org/download/dev/x3dom-full.js"></script>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ajv/3.8.5/ajv.min.js"></script>
+    <style type="text/css">
+    X3D {
+        background:#000;
+	width: 300px;
+	height:150px;
+    }
+    table td, table td * {
+        vertical-align: top;
+    }
+/* unvisited link */
+a:link {
+    color: red;
+}
+
+/* visited link */
+a:visited {
+    color: green;
+}
+
+/* mouse over link */
+a:hover {
+    color: hotpink;
+}
+
+/* selected link */
+a:active {
+    color: blue;
+}
+    </style>
+</head>
+<body>
+<table>
+<tr>
+<td>
+<select id="file">
+<option>ArchHalf.json</option>
+<option>ArchPrototype.json</option>
+<option>ArchPrototypes.json</option>
+<option>bubbles.json</option>
+<option>bubbless.json</option>
+<option>cob.json</option>
+<option>cobs.json</option>
+<option>cobweb.json</option>
+<option>cobwebs.json</option>
+<option>extrusion.json</option>
+<option>ExtrusionHeart.json</option>
+<option>flipper.json</option>
+<option>for.json</option>
+<option>force.json</option>
+<option>forces.json</option>
+<option>fors.json</option>
+<option>geo.json</option>
+<option>geobubbles.json</option>
+<option>IcosahedronSubdivisionLevel5.json</option>
+<option>NancyNativeTags.json</option>
+<option>NancyPrototypes.json</option>
+<option>NancyPrototypess.json</option>
+<option>ObliqueStrategies.json</option>
+<option>ObliqueStrategiess.json</option>
+<option>pp3.json</option>
+<option>pp3s.json</option>
+<option>qq3.json</option>
+<option>qq3s.json</option>
+<option>rubik.json</option>
+<option>rubikFurnace.json</option>
+<option>rubikFurnaces.json</option>
+<option>rubikOnFire.json</option>
+<option>rubikOnFires.json</option>
+<option>rubiks.json</option>
+</select>
+</td>
+<td>
+<input type="text" onchange="filter(event)"></input>
+Use Prototype Expander? <input id="prototype" type="checkbox" checked="true"></input>
+Use Namespace: <select id="namespace">
+<option>http://www.web3d.org/specifications/x3d</option>
+<option>http://www.w3.org/1999/xhtml</option> <!-- X3DOM XML -->
+<option>http://www.x3dom.org/x3dom</option>
+<option>http://www.web3d.org/specifications/x3d-namespace</option>  <!-- COBWEB -->
+<option>none</option> <!-- X3DOM HTML -->
+</select>
+</td>
+</tr>
+<tr>
+<td>
+Click <a onclick='updateXML();'>here</a> to load X3D XML into Cobweb and XML X3DOM viewer. Does not convert to JSON.<br>
+			
+	    
+<textarea id="xml" rows="15" cols="80"></textarea><br>
+<div id="x3domxml"></div>
+<iframe  id='cobwebframe' src="/cobwebframe"></iframe>
+</td>
+<td>
+Click <a onclick='updateX3DOM();'>here</a> to load X3D JSON text into JSON X3DOM viewer and convert to XML (and display).<br>
+<textarea id="json" rows="15" cols="80"></textarea><br>
+<div id="x3domjson"></div>
+</td>
+</tr>
+</table>
+</body>
+    <script type="text/javascript" src="scripts/X3DJSONLD.js"></script>
+    <script type="text/javascript" src="scripts/PrototypeExpander.js"></script>
+    <script type="text/javascript" src="scripts/Script.js"></script>
+    <script type="text/javascript" src="scripts/loaderJQuery.js"></script>
+    <script type="text/javascript">
+	$(document).ready(function() {
+		loadX3DJSON('#x3domjson','flipper.json'); // does load flipper.json
+	});
+    </script>
+</html>
